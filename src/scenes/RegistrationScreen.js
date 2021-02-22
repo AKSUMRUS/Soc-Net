@@ -12,7 +12,7 @@ export const RegistrationScreen = ({navigation}) => {
         navigation.goBack();
     }
 
-    return(
+    return (
         <View>
             <RegiterFormView handleLogin={goToLogin} goBack={onBack}/>
         </View>

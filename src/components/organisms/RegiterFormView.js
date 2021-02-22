@@ -1,12 +1,9 @@
 import React, {useState} from "react";
 import {InputText} from "_atoms/InputText";
-import {Text, View, StyleSheet} from "react-native";
+import {StyleSheet, View} from "react-native";
 import {useDispatch} from "react-redux";
 import {ButtonSend} from "_atoms/ButtonSend";
 import {signUp} from "_store/actions/auth/auth";
-import {TextMerge} from "_atoms/TextMerge";
-import {useNavigation} from "../../context/NavigationStore";
-import {SCREENS} from "_utils/screens";
 
 export const RegiterFormView = ({handleLogin, goBack}) => {
     const [Name, setName] = useState('Введите имя');
@@ -29,7 +26,7 @@ export const RegiterFormView = ({handleLogin, goBack}) => {
     const dispatch = useDispatch();
 
     const onSignUpStart = () => {
-        dispatch( signUp({
+        dispatch(signUp({
             name: Name,
             lastName: Name,
             email: Email,
@@ -52,7 +49,7 @@ export const RegiterFormView = ({handleLogin, goBack}) => {
 
 
 const styles = StyleSheet.create({
-    view:{
+    view: {
         textAlign: 'center',
         justifyContent: 'center',
     }
