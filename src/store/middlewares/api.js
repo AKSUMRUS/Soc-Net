@@ -1,54 +1,63 @@
-// type MiddlewareAPI = { dispatch: Dispatch, getState: () => State }
-// type Middleware = (api: MiddlewareAPI) => (next: Dispatch) => Dispatch
+// type MiddleWareAPI = {disp
+// type MiddleWare
 
-import { BASE_URL } from '_utils/constants';
+import {BASE_URL} from "_utils/constants";
 
-export const api = ({ dispatch }) => next => action => {
-    if (!action.rest) {
-        next(action);
-        return;
+export const api = ({dispatch, getState}) => (next) => (action) => {
+    console.log('test', action)
+    if(!action.rest) {
+        next(action)
+        return ;
     }
-    const url = BASE_URL + action.rest;
+    const {token} = getState().auth;
+    let headers = {
+        'Content-Type': 'application/json',
+    }
+    if(token) {
+        headers = {
+            ...headers,
+            Authorization: `Bearer ${token}`
+        }
+    }
+    const url = BASE_URL + action.rest
 
     next({
         ...action,
         type: action.type + '_START',
-    });
-
-    fetch(url, {
-        method: action.method, // *GET, POST, PUT, DELETE, etc.
-        mode: 'cors', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'Content-Type': 'application/json',
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *client
-        body: action.method === 'GET' ? undefined : JSON.stringify(action.query), // body data type must match "Content-Type" header
     })
-        .then(async response => {
-            const data = await response.json();
-            if (response.status === 200) {
-                next({
-                    data: data,
-                    type: action.type + '_SUCCESS',
-                    prevAction: action,
-                });
-            } else {
-                next({
-                    error: data,
-                    type: action.type + '_FAIL',
-                    prevAction: action,
-                });
-            }
-        })
-        .catch(error => {
+    fetch(url, {
+        method: action.method,
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers,
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: action.method === 'GET' ? undefined : JSON.stringify(action.query),
+    }).then(async (response) => {
+        const data = await response.json()
+        console.log(response, data)
+        if(response.status === 200) {
             next({
-                error: error,
+                data: data,
+                type: action.type + '_SUCCESS',
+                prevAction: action,
+            })
+        } else {
+            next({
+                status: response.status,
+                error: data,
                 type: action.type + '_FAIL',
                 prevAction: action,
-            });
-        });
-};
+            })
+        }
+    }).catch((error) => {
+        next({
+            status: 500,
+            error: error,
+            type: action.type + '_FAIL',
+            prevAction: action,
+        })
+        console.log(error)
+    })
+}
